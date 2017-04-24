@@ -8,6 +8,8 @@
   },
   "author": "MetaMorph, Inc",
   "dependencies": {
-    "webgme": "^2.12.1"
+    "express": "^4.14.0",
+    "webgme": "^2.12.1",
+    "winston": "^2.2.0"
   }
 }
