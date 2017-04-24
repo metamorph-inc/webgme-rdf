@@ -1,0 +1,55 @@
+<%
+var path,
+        i,
+        baseName,
+        hasSets,
+        counter;
+
+function convertName(name) {
+    name = name.replace(/ /g, "_");
+    name = name.replace(/\./g, "__");
+    return name;
+}
+
+function getXsdTypeOfAttribute(attributeDescriptor) {
+    switch (attributeDescriptor.type || 'string') {
+        case 'string':
+        case 'asset':
+            return 'string';
+        case 'integer':
+            return 'integer';
+        case 'float':
+            return 'float';
+        case 'boolean':
+            return 'boolean';
+    }
+}
+%>
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix this: <http://127.0.0.1:8228/?project=guest#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix webgme: <https://github.com/webgme/webgme#> .
+<%
+for(path = 0; path < order.length; path += 1) {
+    //node definition
+    baseName = convertName(nodes[order[path]].name);
+    hasSets = nodes[order[path]].setNames.length > 0;
+%>
+# <%= baseName %> class definition
+this:<%= baseName %> rdf:type rdfs:Class .
+<% for (i = 0; i < nodes[order[path]].subTypes.length; i += 1) {
+    if (nodes[nodes[order[path]].subTypes[i]].name != baseName ) {
+%>this:<%= nodes[nodes[order[path]].subTypes[i]].name %> rdfs:subClassOf this:<%=nodes[order[path]].name %> .
+<%}}%>
+# <%= baseName %> property definitions
+<% for (i = 0; i < nodes[order[path]].attributeNames.length; i+= 1) {
+%>this:<%= baseName %>__<%= nodes[order[path]].attributeNames[i] %> rdf:type rdf:property .
+this:<%= baseName %>__<%= nodes[order[path]].attributeNames[i] %> rdf:domain this:<%= baseName %> .
+this:<%= baseName %>__<%= nodes[order[path]].attributeNames[i] %> rdf:range xsd:<%= getXsdTypeOfAttribute(nodes[order[path]].meta.attributes[nodes[order[path]].attributeNames[i]]) %> .
+<% } %>
+# <%= baseName %> - end
+
+<%
+}
+%>

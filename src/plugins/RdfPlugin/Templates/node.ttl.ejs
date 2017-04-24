@@ -1,0 +1,13 @@
+<%
+function convertName(name) {
+    return name.replace(/ /g, "_").replace(/\//g, "_").replace(/\./g, "__");
+}
+var i, count;
+%>this:node_<%= convertName(id) %> rdf:type this:<%= convertName(type.name) %> .<%
+ if (parent != 'NULL' && parent != '') {%>
+this:node_<%= convertName(id) %> webgme:parentNode this:<%=
+parent === 'NULL' || parent === '' ? 'NULL' : 'node_' + convertName(parent) %> .<%
+}%>
+<% for (i = 0; i < attributeNames.length; i += 1) {
+%>this:node_<%= convertName(id) %> this:<%= type.name %>__<%= attributeNames[i] %> "<%= attributes[attributeNames[i]].value ? attributes[attributeNames[i]].value : '' %>" .
+<% } %>
