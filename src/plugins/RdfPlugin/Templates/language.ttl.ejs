@@ -48,6 +48,14 @@ this:<%= baseName %> rdf:type rdfs:Class .
 this:<%= baseName %>__<%= nodes[order[path]].attributeNames[i] %> rdf:domain this:<%= baseName %> .
 this:<%= baseName %>__<%= nodes[order[path]].attributeNames[i] %> rdf:range xsd:<%= getXsdTypeOfAttribute(nodes[order[path]].meta.attributes[nodes[order[path]].attributeNames[i]]) %> .
 <% } %>
+
+<% for (i = 0; i < nodes[order[path]].pointerNames.length; i+= 1) {
+%>this:<%= baseName %>__<%= nodes[order[path]].pointerNames[i] %> rdf:type rdf:property .
+this:<%= baseName %>__<%= nodes[order[path]].pointerNames[i] %> rdf:domain this:<%= baseName %> .
+this:<%= baseName %>__<%= nodes[order[path]].pointerNames[i] %> rdf:range this:FCO .
+<% } %>
+
+
 # <%= baseName %> - end
 
 <%

@@ -11,3 +11,7 @@ parent === 'NULL' || parent === '' ? 'NULL' : 'node_' + convertName(parent) %> .
 <% for (i = 0; i < attributeNames.length; i += 1) {
 %>this:node_<%= convertName(id) %> this:<%= attributes[attributeNames[i]].meta.name %>__<%= attributeNames[i] %> "<%= attributes[attributeNames[i]].value ? attributes[attributeNames[i]].value : '' %>" .
 <% } %>
+
+<% for (i = 0; i < pointerNames.length; i += 1) {
+%>this:node_<%= convertName(id) %> this:<%= pointers[pointerNames[i]].meta.name %>__<%= pointerNames[i] %> <%= pointers[pointerNames[i]].path ? "this:node_" + convertName(pointers[pointerNames[i]].path) : 'null' %> .
+<% } %>

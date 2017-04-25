@@ -119,7 +119,7 @@ define([
                 setNames: core.getValidSetNames(node),
                 setInfo: getSetInfo(core, metaNodes, ejsParameters.order[i])
             };
-            ejsParameters.nodes[ejsParameters.order[i]].pointerNames.push('base');
+            // ejsParameters.nodes[ejsParameters.order[i]].pointerNames.push('base');
             ejsParameters.nodes[ejsParameters.order[i]].pointerNames.sort();
             ejsParameters.nodes[ejsParameters.order[i]].attributeNames.sort();
             ejsParameters.nodes[ejsParameters.order[i]].setNames.sort();
@@ -202,7 +202,7 @@ define([
                 },
                 i;
 
-            nodeParameters.pointerNames.push('base');
+            // nodeParameters.pointerNames.push('base');
             nodeParameters.pointerNames.sort();
             nodeParameters.attributeNames.sort();
             nodeParameters.setNames.sort();
@@ -215,11 +215,19 @@ define([
                         meta: type
                     };
                 }
-            }
 
-            for (i = 0; i < nodeParameters.pointerNames.length; i += 1) {
-                nodeParameters.pointers[nodeParameters.pointerNames[i]] =
-                    self.core.getPointerPath(visited, nodeParameters.pointerNames[i]);
+                for (i = 0; i < type.pointerNames.length; i++) {
+                    nodeParameters.pointers[type.pointerNames[i]] = {
+                        path: self.core.getPointerPath(visited, type.pointerNames[i]),
+                        meta: type
+                    };
+                }
+            }
+            if (nodeParameters.pointerNames.indexOf('base') !== -1) {
+                nodeParameters.pointers.base = {
+                    path: self.core.getPath(self.core.getBase(visited)),
+                    meta: languageParameters.nodes['/1']
+                };
             }
 
             for (i = 0; i < nodeParameters.setNames.length; i += 1) {
