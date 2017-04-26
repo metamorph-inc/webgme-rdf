@@ -56,9 +56,10 @@ describe('RdfPlugin', function () {
             .nodeify(done);
     });
 
-    it('should run plugin and not update the branch', function (done) {
+    it('should run plugin and produce some output', function (done) {
         var manager = new PluginCliManager(null, logger, gmeConfig),
             pluginConfig = {
+                // RdfServerUrl: "http://localhost:9999/FactoryStatic"
             },
             context = {
                 project: project,

@@ -2,12 +2,14 @@
 function convertName(name) {
     return name.replace(/ /g, "_").replace(/\//g, "_").replace(/\./g, "__");
 }
+// TODO string escaping
 var i, count;
 %>this:node_<%= convertName(id) %> rdf:type this:<%= convertName(type.name) %> .<%
  if (parent != 'NULL' && parent != '') {%>
 this:node_<%= convertName(id) %> webgme:parentNode this:<%=
 parent === 'NULL' || parent === '' ? 'NULL' : 'node_' + convertName(parent) %> .<%
 }%>
+this:node_<%= convertName(id) %> rdfs:label "<% name %>" .
 <% for (i = 0; i < attributeNames.length; i += 1) {
 %>this:node_<%= convertName(id) %> this:<%= attributes[attributeNames[i]].meta.name %>__<%= attributeNames[i] %> "<%= attributes[attributeNames[i]].value ? attributes[attributeNames[i]].value : '' %>" .
 <% } %>

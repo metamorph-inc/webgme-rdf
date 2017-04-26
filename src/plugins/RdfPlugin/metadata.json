@@ -10,5 +10,14 @@
   "disableServerSideExecution": false,
   "disableBrowserSideExecution": false,
   "writeAccessRequired": false,
-  "configStructure": []
+  "configStructure": [
+      {
+        "name": "RdfServerUrl",
+        "displayName": "Rdf Server Url",
+        "description": "Url to upload results, e.g. http://localhost:9999/FactoryStatic",
+        "value": "",
+        "valueType": "string",
+        "readOnly": false
+      }
+    ]
 }

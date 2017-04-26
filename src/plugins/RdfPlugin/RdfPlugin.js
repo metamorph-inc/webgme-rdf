@@ -16,7 +16,8 @@ define([
     'text!./Templates/language.ttl.ejs',
     'text!./Templates/node.ttl.ejs',
     'text!./Templates/project.ttl.ejs',
-    './utils'
+    './utils',
+    'q'
 ], function (PluginConfig,
              pluginMetadata,
              PluginBase,
@@ -25,8 +26,11 @@ define([
              languageTemplate,
              nodeTemplate,
              projectTemplate,
-             utils) {
+             utils,
+             q) {
     'use strict';
+
+    const superagent = require('superagent');
 
     function getSubTypesOfNode(core, metaNodes, path) {
         var subTypePaths = [],
@@ -226,7 +230,7 @@ define([
             if (nodeParameters.pointerNames.indexOf('base') !== -1) {
                 nodeParameters.pointers.base = {
                     path: self.core.getPath(self.core.getBase(visited)),
-                    meta: languageParameters.nodes['/1']
+                    meta: self.core.getFCO(visited)
                 };
             }
 
@@ -262,8 +266,15 @@ define([
                     message: JSON.stringify(utils.getUserConstraintNames(projectParameters.constraints))
                 }));
 
-                self.result.setSuccess(true);
                 // console.log(projectText);
+
+                if (self.getCurrentConfig().RdfServerUrl) {
+                    return self.upload(projectText)
+                        .then(self.rename.bind(self));
+                }
+            }).then(function () {
+
+                self.result.setSuccess(true);
                 callback(null, self.result);
             })
             .catch(function (err) {
@@ -272,6 +283,48 @@ define([
                 callback(null, self.result);
             });
 
+    };
+
+    GenFORMULA.prototype.upload = function (ttl) {
+        const http = require('http');
+        const deferred = q.defer();
+
+        // TODO parametrize
+        superagent.post(this.getCurrentConfig().RdfServerUrl + '/upload')
+            .attach('file', Buffer.from(ttl), 'webgme.ttl')
+            // value must be a URI
+            .field('graph', 'http://metamorphsoftware.com/projectname21')
+            .on('error', deferred.reject)
+            .end(function(err, res) {
+                if (err) {
+                    return deferred.reject(err);
+                }
+                if (res.error) {
+                    return deferred.reject(res.status);
+                }
+                return deferred.resolve(res);
+            });
+
+
+        return deferred.promise;
+    };
+
+    GenFORMULA.prototype.rename = function () {
+        const deferred = q.defer();
+        superagent.post(this.getCurrentConfig().RdfServerUrl  + '/update')
+            .set('Content-Type', 'application/sparql-update')
+            .send('MOVE GRAPH <http://metamorphsoftware.com/projectname21> TO <http://metamorphsoftware.com/projectname12345>')
+            .on('error', deferred.reject)
+            .end(function(err, res) {
+                if (err) {
+                    return deferred.reject(err);
+                }
+                if (res.error) {
+                    return deferred.reject(res.status);
+                }
+                return deferred.resolve(res);
+            });
+        return deferred.promise;
     };
 
     return GenFORMULA;
