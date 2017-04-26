@@ -18,6 +18,14 @@
         "value": "",
         "valueType": "string",
         "readOnly": false
+      },
+      {
+        "name": "WebGmeServerUrl",
+        "displayName": "WebGme Server Url",
+        "description": "",
+        "value": "http://localhost:8888",
+        "valueType": "string",
+        "readOnly": false
       }
     ]
 }

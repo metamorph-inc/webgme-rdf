@@ -248,22 +248,15 @@ define([
                         projectName: self.projectName,
                         language: ejs.render(languageTemplate, languageParameters),
                         nodes: nodeTexts,
-                        constraints: self.core.getAttribute(self.rootNode, '_formulaConstraints') || ""
+                        // constraints: self.core.getAttribute(self.rootNode, '_formulaConstraints') || "",
+                        WebGmeServerUrl: self.getCurrentConfig().WebGmeServerUrl
                     },
                     projectText = ejs.render(projectTemplate, projectParameters);
 
-                // The first message contains the formula project
                 self.result.addMessage(new PluginMessage({
                     commitHash: self.commitHash,
                     activeNode: '', //always point to the root
                     message: projectText
-                }));
-
-                // The second message contains the list of the names of the user defined constraints
-                self.result.addMessage(new PluginMessage({
-                    commitHash: self.commitHash,
-                    activeNode: '', //always point to the root
-                    message: JSON.stringify(utils.getUserConstraintNames(projectParameters.constraints))
                 }));
 
                 // console.log(projectText);
@@ -287,13 +280,13 @@ define([
 
     GenFORMULA.prototype.upload = function (ttl) {
         const http = require('http');
+        const WebGmeServerUrl = this.getCurrentConfig().WebGmeServerUrl;
         const deferred = q.defer();
 
-        // TODO parametrize
         superagent.post(this.getCurrentConfig().RdfServerUrl + '/upload')
             .attach('file', Buffer.from(ttl), 'webgme.ttl')
             // value must be a URI
-            .field('graph', 'http://metamorphsoftware.com/projectname21')
+            .field('graph', WebGmeServerUrl + '/?project=' + this.projectName + '_tmp')
             .on('error', deferred.reject)
             .end(function(err, res) {
                 if (err) {
@@ -311,9 +304,10 @@ define([
 
     GenFORMULA.prototype.rename = function () {
         const deferred = q.defer();
+        const WebGmeServerUrl = this.getCurrentConfig().WebGmeServerUrl;
         superagent.post(this.getCurrentConfig().RdfServerUrl  + '/update')
             .set('Content-Type', 'application/sparql-update')
-            .send('MOVE GRAPH <http://metamorphsoftware.com/projectname21> TO <http://metamorphsoftware.com/projectname12345>')
+            .send('MOVE GRAPH <' + WebGmeServerUrl + '/?project=' + this.projectName + '_tmp> TO <' + WebGmeServerUrl + '/?project=' + this.projectName + '>')
             .on('error', deferred.reject)
             .end(function(err, res) {
                 if (err) {

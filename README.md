@@ -10,6 +10,8 @@ Setup:
     git clone https://github.com/webgme/webgme .
     node utils\build\webgme.classes\build_classes.js
 
+Edit `config.js`
+
     node src/bin/manage_webhooks.js add MyProject MyHook http://localhost:8080/webgme_webhook -e all
     node src/bin/manage_webhooks.js update MyProject MyHook --url http://localhost:8080/webgme_webhook -e all
 

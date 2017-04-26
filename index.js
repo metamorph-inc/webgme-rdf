@@ -1,15 +1,20 @@
 const http = require('http')  
-const port = 8080
 
 const pluginName = 'RdfPlugin'
 const projectName = 'MyProject'
 
 const child_process = require('child_process')
+const fs = require('fs')
 const express = require('express')
 const app = express()
 
 const winston = require('winston')
- 
+
+const config = require('./config')
+const RdfServerUrl = config.webgme_rdf.RdfServerUrl
+const port = config.webgme_rdf.ListenPort
+const WebGmeServerUrl = config.webgme_rdf.WebGmeServerUrl
+
 app.get('/', function (req, res) {
     res.send('todo')
 })
@@ -25,9 +30,11 @@ app.post('/webgme_webhook', function (req, res) {
     req.on('end', function () {
         var hookData = JSON.parse(body);
         if (hookData.event === 'BRANCH_HASH_UPDATED' && hookData.data.branchName === 'master') {
+            const pluginConfig = 'plugin_config.json';
+            fs.writeFileSync(pluginConfig, JSON.stringify({RdfServerUrl: RdfServerUrl}))
             winston.info(`Hash updated. Calling node node_modules\\webgme\\src\\bin\\run_plugin.js  -c ${hookData.data.newHash} ${pluginName} ${projectName}`)
             // TODO: max one process at a time
-            child_process.execFile(process.argv[0], ['node_modules\\webgme\\src\\bin\\run_plugin.js', '-c', hookData.data.newHash, pluginName, projectName], {},
+            child_process.execFile(process.argv[0], ['node_modules\\webgme\\src\\bin\\run_plugin.js', '--pluginConfigPath', pluginConfig, '-c', hookData.data.newHash, pluginName, projectName], {},
                 function (error, stdout, stderr) {
                     if (error) {
                         winston.error(`run_plugin.js returned error ${error}: ` + stderr)
