@@ -142,13 +142,13 @@ define([
     pluginMetadata = JSON.parse(pluginMetadata);
 
     /**
-     * Initializes a new instance of GenFORMULA.
+     * Initializes a new instance of RdfPlugin.
      * @class
      * @augments {PluginBase}
-     * @classdesc This class represents the plugin GenFORMULA.
+     * @classdesc This class represents the plugin RdfPlugin.
      * @constructor
      */
-    var GenFORMULA = function () {
+    var RdfPlugin = function () {
         // Call base class' constructor.
         PluginBase.call(this);
         this.pluginMetadata = pluginMetadata;
@@ -159,11 +159,11 @@ define([
      * This is also available at the instance at this.pluginMetadata.
      * @type {object}
      */
-    GenFORMULA.metadata = pluginMetadata;
+    RdfPlugin.metadata = pluginMetadata;
 
     // Prototypical inheritance from PluginBase.
-    GenFORMULA.prototype = Object.create(PluginBase.prototype);
-    GenFORMULA.prototype.constructor = GenFORMULA;
+    RdfPlugin.prototype = Object.create(PluginBase.prototype);
+    RdfPlugin.prototype.constructor = RdfPlugin;
 
     /**
      * Main function for the plugin to execute. This will perform the execution.
@@ -174,7 +174,7 @@ define([
      *
      * @param {function(string, plugin.PluginResult)} callback - the result callback
      */
-    GenFORMULA.prototype.main = function (callback) {
+    RdfPlugin.prototype.main = function (callback) {
         // Use self to access core, project, result, logger etc from PluginBase.
         // These are all instantiated at this point.
         var self = this,
@@ -230,7 +230,7 @@ define([
             if (nodeParameters.pointerNames.indexOf('base') !== -1) {
                 nodeParameters.pointers.base = {
                     path: self.core.getPath(self.core.getBase(visited)),
-                    meta: self.core.getFCO(visited)
+                    meta: languageParameters.nodes[self.core.getPath(self.core.getFCO(visited))]
                 };
             }
 
@@ -278,7 +278,7 @@ define([
 
     };
 
-    GenFORMULA.prototype.upload = function (ttl) {
+    RdfPlugin.prototype.upload = function (ttl) {
         const http = require('http');
         const WebGmeServerUrl = this.getCurrentConfig().WebGmeServerUrl;
         const deferred = q.defer();
@@ -302,7 +302,7 @@ define([
         return deferred.promise;
     };
 
-    GenFORMULA.prototype.rename = function () {
+    RdfPlugin.prototype.rename = function () {
         const deferred = q.defer();
         const WebGmeServerUrl = this.getCurrentConfig().WebGmeServerUrl;
         superagent.post(this.getCurrentConfig().RdfServerUrl  + '/update')
@@ -321,5 +321,5 @@ define([
         return deferred.promise;
     };
 
-    return GenFORMULA;
+    return RdfPlugin;
 });
