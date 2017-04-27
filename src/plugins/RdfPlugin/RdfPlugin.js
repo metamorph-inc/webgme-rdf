@@ -291,8 +291,8 @@ define([
             encodeURIComponent(WebGmeServerUrl + '/?project=' + this.projectName + '_tmp');
 
         var digest = new request_digest('dba', 'dba');
-        digest.request(url, {method: 'POST', path: require('url').parse(url).path}, function (err, headers) {
-            superagent.post(url)
+        digest.request(url, {method: 'PUT', path: require('url').parse(url).path}, function (err, headers) {
+            superagent.put(url)
                 .set('Authorization', headers.Authorization)
                 .send(ttl)
                 .on('error', deferred.reject)
