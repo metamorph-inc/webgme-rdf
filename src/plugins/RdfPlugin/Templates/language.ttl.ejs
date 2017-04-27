@@ -31,27 +31,27 @@ for(path = 0; path < order.length; path += 1) {
     baseName = convertName(nodes[order[path]].name);
     hasSets = nodes[order[path]].setNames.length > 0;
 %>
-# <%= baseName %> class definition
-this:<%= baseName %> rdf:type rdfs:Class .
+# <%- baseName %> class definition
+this:<%- baseName %> rdf:type rdfs:Class .
 <% for (i = 0; i < nodes[order[path]].subTypes.length; i += 1) {
     if (nodes[nodes[order[path]].subTypes[i]].name != baseName ) {
-%>this:<%= nodes[nodes[order[path]].subTypes[i]].name %> rdfs:subClassOf this:<%=nodes[order[path]].name %> .
+%>this:<%- nodes[nodes[order[path]].subTypes[i]].name %> rdfs:subClassOf this:<%-nodes[order[path]].name %> .
 <%}}%>
-# <%= baseName %> property definitions
+# <%- baseName %> property definitions
 <% for (i = 0; i < nodes[order[path]].attributeNames.length; i+= 1) {
-%>this:<%= baseName %>__<%= nodes[order[path]].attributeNames[i] %> rdf:type rdf:property .
-this:<%= baseName %>__<%= nodes[order[path]].attributeNames[i] %> rdf:domain this:<%= baseName %> .
-this:<%= baseName %>__<%= nodes[order[path]].attributeNames[i] %> rdf:range xsd:<%= getXsdTypeOfAttribute(nodes[order[path]].meta.attributes[nodes[order[path]].attributeNames[i]]) %> .
+%>this:<%- baseName %>__<%- nodes[order[path]].attributeNames[i] %> rdf:type rdf:property .
+this:<%- baseName %>__<%- nodes[order[path]].attributeNames[i] %> rdf:domain this:<%- baseName %> .
+this:<%- baseName %>__<%- nodes[order[path]].attributeNames[i] %> rdf:range xsd:<%- getXsdTypeOfAttribute(nodes[order[path]].meta.attributes[nodes[order[path]].attributeNames[i]]) %> .
 <% } %>
 
 <% for (i = 0; i < nodes[order[path]].pointerNames.length; i+= 1) {
-%>this:<%= baseName %>__<%= nodes[order[path]].pointerNames[i] %> rdf:type rdf:property .
-this:<%= baseName %>__<%= nodes[order[path]].pointerNames[i] %> rdf:domain this:<%= baseName %> .
-this:<%= baseName %>__<%= nodes[order[path]].pointerNames[i] %> rdf:range this:FCO .
+%>this:<%- baseName %>__<%- nodes[order[path]].pointerNames[i] %> rdf:type rdf:property .
+this:<%- baseName %>__<%- nodes[order[path]].pointerNames[i] %> rdf:domain this:<%- baseName %> .
+this:<%- baseName %>__<%- nodes[order[path]].pointerNames[i] %> rdf:range this:FCO .
 <% } %>
 
 
-# <%= baseName %> - end
+# <%- baseName %> - end
 
 <%
 }

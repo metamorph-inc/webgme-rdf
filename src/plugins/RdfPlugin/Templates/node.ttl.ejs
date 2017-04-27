@@ -4,16 +4,21 @@ function convertName(name) {
 }
 // TODO string escaping
 var i, count;
-%>this:node_<%= convertName(id) %> rdf:type this:<%= convertName(type.name) %> .<%
- if (parent != 'NULL' && parent != '') {%>
-this:node_<%= convertName(id) %> webgme:parentNode this:<%=
+%>this:node_<%- convertName(id) %> rdf:type this:<%- convertName(type.name) %> .<%
+ if (parent !== 'NULL' && parent !== '') {%>
+this:node_<%- convertName(id) %> webgme:parentNode this:<%-
 parent === 'NULL' || parent === '' ? 'NULL' : 'node_' + convertName(parent) %> .<%
 }%>
-this:node_<%= convertName(id) %> rdfs:label "<%= name %>" .
+this:node_<%- convertName(id) %> rdfs:label "<%- name %>" .
 <% for (i = 0; i < attributeNames.length; i += 1) {
-%>this:node_<%= convertName(id) %> this:<%= attributes[attributeNames[i]].meta.name %>__<%= attributeNames[i] %> "<%= attributes[attributeNames[i]].value ? attributes[attributeNames[i]].value : '' %>" .
-<% } %>
+var attribute = attributes[attributeNames[i]];
+if (attribute.value.indexOf('<http://') === 0) {
+%>this:node_<%- convertName(id) %> this:<%- attribute.meta.name %>__<%- attributeNames[i] %> <%- attribute.value %> .
+<%
+} else {
+%>this:node_<%- convertName(id) %> this:<%- attribute.meta.name %>__<%- attributeNames[i] %> "<%- attribute.value ? attribute.value : '' %>" .
+<% } } %>
 
 <% for (i = 0; i < pointerNames.length; i += 1) {
-%>this:node_<%= convertName(id) %> this:<%= pointers[pointerNames[i]].meta.name %>__<%= pointerNames[i] %> <%= pointers[pointerNames[i]].path ? "this:node_" + convertName(pointers[pointerNames[i]].path) : 'null' %> .
+%>this:node_<%- convertName(id) %> this:<%- pointers[pointerNames[i]].meta.name %>__<%- pointerNames[i] %> <%- pointers[pointerNames[i]].path ? "this:node_" + convertName(pointers[pointerNames[i]].path) : 'null' %> .
 <% } %>
