@@ -34,9 +34,9 @@ app.post('/webgme_webhook', function (req, res) {
             // FIXME: use this instead?: projectId: 'guest+Factory',
             const projectName = hookData.projectName;
 
-            fs.writeFileSync(pluginConfig, JSON.stringify({RdfServerUrl: RdfServerUrl}))
+            fs.writeFileSync(pluginConfig, JSON.stringify({RdfServerUrl: RdfServerUrl, WebGmeServerUrl: WebGmeServerUrl}))
             winston.info(`Hash updated. Calling node node_modules\\webgme\\src\\bin\\run_plugin.js  -c ${hookData.data.newHash} ${pluginName} ${projectName}`)
-            // TODO: max one process at a time
+            // TODO: max one process per project at a time
             child_process.execFile(process.argv[0], ['node_modules\\webgme\\src\\bin\\run_plugin.js', '--pluginConfigPath', pluginConfig, '-c', hookData.data.newHash, pluginName, projectName], {},
                 function (error, stdout, stderr) {
                     if (error) {
