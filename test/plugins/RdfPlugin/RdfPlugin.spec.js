@@ -57,11 +57,12 @@ describe('RdfPlugin', function () {
     });
 
     it('should run plugin and produce some output', function (done) {
+        // virtuoso can take a long time
         this.timeout(15000);
 
         var manager = new PluginCliManager(null, logger, gmeConfig),
             pluginConfig = {
-                // RdfServerUrl: "http://localhost:9999/"
+                // RdfServerUrl: "http://localhost:9999"
             },
             context = {
                 project: project,
@@ -73,14 +74,17 @@ describe('RdfPlugin', function () {
         var q = require('q')
         q.nfcall(manager.executePlugin, pluginName, pluginConfig, context)
             .then(function (pluginResult) {
+                const rdf = pluginResult.messages[0].message;
+
+                // require('fs').writeFileSync('debug.ttl', rdf)
+
                 expect(typeof pluginResult).to.equal('object');
                 expect(pluginResult.success).to.equal(true);
-
-                const rdf = pluginResult.messages[0].message;
 
                 expect(rdf).to.contain('this:FCO__name rdf:type rdf:property');
                 expect(rdf).to.contain('this:Connection__dst rdf:type rdf:property');
                 expect(rdf).to.contain('this:node__k_s this:Connection__dst this:node__k_F');
+                expect(rdf).to.contain('this:Class__ClassAttr <http://example.com/this_is_a&uri?true> .');
 
                 project.getBranchHash('test')
                     .then(function (branchHash) {

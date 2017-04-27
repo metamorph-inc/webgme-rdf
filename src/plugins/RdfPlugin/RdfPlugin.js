@@ -263,6 +263,12 @@ define([
                 // console.log(projectText);
 
                 if (self.getCurrentConfig().RdfServerUrl) {
+                    // TODO: detect server type
+                    // Server: Virtuoso/07.20.3217 (Win64) x86_64-generic-win-64
+                    // vs
+                    // curl -v http://localhost:3030/$/server
+                    // ....
+                    // < Fuseki-Request-ID: 52
                     return self.upload(projectText)
                         .then(self.rename.bind(self));
                 }

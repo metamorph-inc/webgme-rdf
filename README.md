@@ -29,3 +29,9 @@ Run:
 
 Virtuoso configuration:
 System Admin->User Accounts->SPARQL-> Add SPARQL_UPDATE
+
+Install Faceted Browser at http://localhost:8890/conductor/vad.vspx?realm=virtuoso_admin
+Access it at http://localhost:8890/fct
+
+Manual data upload:  
+curl --digest --user dba:dba --verbose --url "http://localhost:8890/sparql-graph-crud-auth?graph-uri=http%3A%2F%2Flocalhost%3A8888%2F%3Fproject%3DTESTTEST" -T gme-factory.ttl
