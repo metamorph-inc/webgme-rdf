@@ -31,6 +31,7 @@ define([
     'use strict';
 
     const superagent = require('superagent');
+    const request_digest = require.nodeRequire('../../../request-digest.es6')
 
     function getSubTypesOfNode(core, metaNodes, path) {
         var subTypePaths = [],
@@ -283,6 +284,32 @@ define([
         const WebGmeServerUrl = this.getCurrentConfig().WebGmeServerUrl;
         const deferred = q.defer();
 
+
+
+        // curl --digest --user dba:dba --verbose --url "http://example.com?graph-uri=urn:graph:update:test:put" -T books.ttl
+        var url = this.getCurrentConfig().RdfServerUrl + '/sparql-graph-crud-auth?graph-uri=' +
+            encodeURIComponent(WebGmeServerUrl + '/?project=' + this.projectName + '_tmp');
+
+        var digest = new request_digest('dba', 'dba');
+        digest.request(url, {method: 'POST', path: require('url').parse(url).path}, function (err, headers) {
+            superagent.post(url)
+                .set('Authorization', headers.Authorization)
+                .send(ttl)
+                .on('error', deferred.reject)
+                .end(function (err, res) {
+                    if (err) {
+                        return deferred.reject(err);
+                    }
+                    if (res.error) {
+                        return deferred.reject(res.status);
+                    }
+                    return deferred.resolve(res);
+                });
+        });
+
+        return deferred.promise;
+
+        // apache fuseki
         superagent.post(this.getCurrentConfig().RdfServerUrl + '/upload')
             .attach('file', Buffer.from(ttl), 'webgme.ttl')
             // value must be a URI
@@ -305,6 +332,23 @@ define([
     RdfPlugin.prototype.rename = function () {
         const deferred = q.defer();
         const WebGmeServerUrl = this.getCurrentConfig().WebGmeServerUrl;
+
+        const move = 'MOVE GRAPH <' + WebGmeServerUrl + '/?project=' + this.projectName + '_tmp> TO <' + WebGmeServerUrl + '/?project=' + this.projectName + '>';
+
+        // http://demo.openlinksw.com/sparql?default-graph-uri=&query=SELECT+*+%0D%0AWHERE+%0D%0A++{%0D%0A++++%3Fs+%3Fp+%3Fo%0D%0A++}%09%0D%0ALIMIT+10++&should-sponge=&format=text%2Fhtml&CXML_redir_for_subjs=121&CXML_redir_for_hrefs=&timeout=0&debug=on
+        superagent.post(this.getCurrentConfig().RdfServerUrl  + '/sparql?default-graph-uri=&query=' + encodeURIComponent(move))
+            .on('error', deferred.reject)
+            .end(function(err, res) {
+                if (err) {
+                    return deferred.reject(err);
+                }
+                if (res.error) {
+                    return deferred.reject(res.status);
+                }
+                return deferred.resolve(res);
+            });
+
+        return deferred.promise;
         superagent.post(this.getCurrentConfig().RdfServerUrl  + '/update')
             .set('Content-Type', 'application/sparql-update')
             .send('MOVE GRAPH <' + WebGmeServerUrl + '/?project=' + this.projectName + '_tmp> TO <' + WebGmeServerUrl + '/?project=' + this.projectName + '>')

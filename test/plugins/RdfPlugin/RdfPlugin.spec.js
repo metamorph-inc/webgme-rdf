@@ -57,9 +57,11 @@ describe('RdfPlugin', function () {
     });
 
     it('should run plugin and produce some output', function (done) {
+        this.timeout(15000);
+
         var manager = new PluginCliManager(null, logger, gmeConfig),
             pluginConfig = {
-                // RdfServerUrl: "http://localhost:9999/FactoryStatic"
+                // RdfServerUrl: "http://localhost:9999/"
             },
             context = {
                 project: project,

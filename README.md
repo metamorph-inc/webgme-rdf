@@ -26,3 +26,6 @@ Create project
 Run:
 
     node index.js
+
+Virtuoso configuration:
+System Admin->User Accounts->SPARQL-> Add SPARQL_UPDATE
