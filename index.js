@@ -61,6 +61,12 @@ function update(hash, projectName) {
         function (error, stdout, stderr) {
             var newHash = updatesRunning[projectName];
             delete updatesRunning[projectName];
+            if (newHash && newHash !== hash) {
+                setImmediate(function () {
+                    winston.info(`Running deferred update for ${projectName}`)
+                    update(newHash, projectName)
+                });
+            }
             if (error) {
                 winston.error(`run_plugin.js returned error ${error}: ` + stderr)
                 return
@@ -72,10 +78,6 @@ function update(hash, projectName) {
                 return
             }
             winston.info(`Updating ${projectName} to ${hash} succeeded`)
-            if (newHash && newHash !== hash) {
-                winston.info(`Running deferred update for ${projectName}`);
-                update(newHash, projectName)
-            }
             // const data = JSON.parse(stdout.substring(successIndex + successString.length))
             // console.log(data.messages[0].message)
         }
