@@ -355,6 +355,8 @@ define([
             });
 
         return deferred.promise;
+        
+        // apache fuseki version
         superagent.post(this.getCurrentConfig().RdfServerUrl  + '/update')
             .set('Content-Type', 'application/sparql-update')
             .send('MOVE GRAPH <' + WebGmeServerUrl + '/?project=' + this.projectName + '_tmp> TO <' + WebGmeServerUrl + '/?project=' + this.projectName + '>')
