@@ -23,7 +23,7 @@ app.post('/webgme_webhook', function (req, res) {
     var body = '';
     req.on('data', function (data) {
         body += data;
-        if (body.length > 1e6) { 
+        if (body.length > 1e6) {
             req.connection.destroy();
         }
     });
@@ -56,9 +56,9 @@ function update(hash, projectName) {
     }
     updatesRunning[projectName] = hash
 
-    winston.info(`Calling node node_modules\\webgme\\src\\bin\\run_plugin.js  -c ${hash} ${pluginName} ${projectName}`)
+    winston.info(`Calling node node_modules/webgme/src/bin/run_plugin.js  -c ${hash} ${pluginName} ${projectName}`)
 
-    child_process.execFile(process.argv[0], ['node_modules\\webgme\\src\\bin\\run_plugin.js', '--pluginConfigPath', pluginConfig, '-c', hash, pluginName, projectName], {},
+    child_process.execFile(process.argv[0], ['node_modules/webgme/src/bin/run_plugin.js', '--pluginConfigPath', pluginConfig, '-c', hash, pluginName, projectName], {},
         function (error, stdout, stderr) {
             var newHash = updatesRunning[projectName];
             delete updatesRunning[projectName];
@@ -89,4 +89,3 @@ function update(hash, projectName) {
 app.listen(port, function () {
     winston.info(`Listening on port ${port}`)
 })
-
