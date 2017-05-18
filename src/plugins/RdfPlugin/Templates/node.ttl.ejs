@@ -12,7 +12,8 @@ parent === 'NULL' || parent === '' ? 'NULL' : 'node_' + convertName(parent) %> .
 this:node_<%- convertName(id) %> rdfs:label "<%- name %>" .
 <% for (i = 0; i < attributeNames.length; i += 1) {
 var attribute = attributes[attributeNames[i]];
-if (attribute.value.indexOf('<http://') === 0) {
+if (attribute) // may have an attribute defined but it isnt in the meta
+if (typeof(attribute.value) === 'string' && attribute.value.indexOf('<http://') === 0) {
 %>this:node_<%- convertName(id) %> this:<%- attribute.meta.name %>__<%- attributeNames[i] %> <%- attribute.value %> .
 <%
 } else {
