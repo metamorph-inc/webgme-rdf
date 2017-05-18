@@ -21,6 +21,7 @@ class HTTPDigest {
         // const port = options.port ? options.port : 80;
 
         // options.url = `${options.host}:${port}${options.path}`;
+        // FIXME: should be superagent[lower(options.method)]
         superagent.get(url)
             //.on('error', function (error, res) {
             //    this._handleResponse(options, error.response, callback) }.bind(this))
