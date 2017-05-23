@@ -10,7 +10,8 @@ const app = express()
 const winston = require('winston')
 
 const config = require('./config')
-const RdfServerUrl = config.webgme_rdf.RdfServerUrl
+const FusekiServerUrl = config.webgme_rdf.FusekiServerUrl
+const VirtuosoServerUrl = config.webgme_rdf.VirtuosoServerUrl
 const port = config.webgme_rdf.ListenPort
 const WebGmeServerUrl = config.webgme_rdf.WebGmeServerUrl
 
@@ -47,7 +48,7 @@ var updatesRunning = {}
 function update(hash, projectName) {
     // TODO: max one process per project at a time
     const pluginConfig = 'plugin_config.json';
-    fs.writeFileSync(pluginConfig, JSON.stringify({RdfServerUrl: RdfServerUrl, WebGmeServerUrl: WebGmeServerUrl}))
+    fs.writeFileSync(pluginConfig, JSON.stringify({VirtuosoServerUrl: VirtuosoServerUrl, FusekiServerUrl: FusekiServerUrl, WebGmeServerUrl: WebGmeServerUrl}))
     if (updatesRunning[projectName]) {
         winston.info(`Hash updated for ${projectName}. Deferring update`)
         updatesRunning[projectName] = hash

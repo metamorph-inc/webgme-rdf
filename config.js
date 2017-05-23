@@ -8,8 +8,8 @@ config.webhooks.enable = true
 
 // webgme-rdf configuration:
 config.webgme_rdf = {
-    // Fuseki URL
-    RdfServerUrl: 'http://localhost:8890',
+    FusekiServerUrl: 'http://localhost:3030/FactoryStatic',
+    VirtuosoServerUrl: 'http://localhost:8890',
     ListenPort: 8080,
     // Named graphs start with this:
     WebGmeServerUrl: 'http://localhost:8888'

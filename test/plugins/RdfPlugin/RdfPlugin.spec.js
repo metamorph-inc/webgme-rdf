@@ -62,7 +62,8 @@ describe('RdfPlugin', function () {
 
         var manager = new PluginCliManager(null, logger, gmeConfig),
             pluginConfig = {
-                // RdfServerUrl: "http://localhost:9999"
+                // FusekiServerUrl: "http://localhost:3030/FactoryStatic",
+                // VirtuosoServerUrl: "http://localhost:8890"
             },
             context = {
                 project: project,

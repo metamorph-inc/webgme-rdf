@@ -262,16 +262,16 @@ define([
 
                 // console.log(projectText);
 
-                if (self.getCurrentConfig().RdfServerUrl) {
-                    // TODO: detect server type
-                    // Server: Virtuoso/07.20.3217 (Win64) x86_64-generic-win-64
-                    // vs
-                    // curl -v http://localhost:3030/$/server
-                    // ....
-                    // < Fuseki-Request-ID: 52
-                    return self.upload(projectText)
-                        .then(self.rename.bind(self));
+                var uploads = [];
+                if (self.getCurrentConfig().FusekiServerUrl) {
+                    uploads.push(self.uploadFuseki(projectText)
+                        .then(self.renameFuseki.bind(self)));
                 }
+                if (self.getCurrentConfig().VirtuosoServerUrl) {
+                    uploads.push(self.uploadVirtuoso(projectText)
+                        .then(self.renameVirtuoso.bind(self)));
+                }
+                return q.all(uploads);
             }).then(function () {
 
                 self.result.setSuccess(true);
@@ -285,19 +285,20 @@ define([
 
     };
 
-    RdfPlugin.prototype.upload = function (ttl) {
-        const http = require('http');
+    RdfPlugin.prototype.uploadVirtuoso = function (ttl) {
         const WebGmeServerUrl = this.getCurrentConfig().WebGmeServerUrl;
         const deferred = q.defer();
 
 
-
         // curl --digest --user dba:dba --verbose --url "http://example.com?graph-uri=urn:graph:update:test:put" -T books.ttl
-        var url = this.getCurrentConfig().RdfServerUrl + '/sparql-graph-crud-auth?graph-uri=' +
+        var url = this.getCurrentConfig().VirtuosoServerUrl + '/sparql-graph-crud-auth?graph-uri=' +
             encodeURIComponent(WebGmeServerUrl + '/?project=' + this.projectName + '_tmp');
 
         var digest = new request_digest('dba', 'dba');
         digest.request(url, {method: 'PUT', path: require('url').parse(url).path}, function (err, headers) {
+            if (err) {
+                return deferred.resolve(err);
+            }
             superagent.put(url)
                 .set('Authorization', headers.Authorization)
                 .send(ttl)
@@ -314,9 +315,13 @@ define([
         });
 
         return deferred.promise;
+    };
 
-        // apache fuseki
-        superagent.post(this.getCurrentConfig().RdfServerUrl + '/upload')
+    RdfPlugin.prototype.uploadFuseki = function (ttl) {
+        const WebGmeServerUrl = this.getCurrentConfig().WebGmeServerUrl;
+        const deferred = q.defer();
+
+        superagent.post(this.getCurrentConfig().FusekiServerUrl + '/upload')
             .attach('file', Buffer.from(ttl), 'webgme.ttl')
             // value must be a URI
             .field('graph', WebGmeServerUrl + '/?project=' + this.projectName + '_tmp')
@@ -335,16 +340,16 @@ define([
         return deferred.promise;
     };
 
-    RdfPlugin.prototype.rename = function () {
+    RdfPlugin.prototype.renameVirtuoso = function () {
         const deferred = q.defer();
         const WebGmeServerUrl = this.getCurrentConfig().WebGmeServerUrl;
 
         const move = 'MOVE GRAPH <' + WebGmeServerUrl + '/?project=' + this.projectName + '_tmp> TO <' + WebGmeServerUrl + '/?project=' + this.projectName + '>';
 
         // http://demo.openlinksw.com/sparql?default-graph-uri=&query=SELECT+*+%0D%0AWHERE+%0D%0A++{%0D%0A++++%3Fs+%3Fp+%3Fo%0D%0A++}%09%0D%0ALIMIT+10++&should-sponge=&format=text%2Fhtml&CXML_redir_for_subjs=121&CXML_redir_for_hrefs=&timeout=0&debug=on
-        superagent.post(this.getCurrentConfig().RdfServerUrl  + '/sparql?default-graph-uri=&query=' + encodeURIComponent(move))
+        superagent.post(this.getCurrentConfig().VirtuosoServerUrl + '/sparql?default-graph-uri=&query=' + encodeURIComponent(move))
             .on('error', deferred.reject)
-            .end(function(err, res) {
+            .end(function (err, res) {
                 if (err) {
                     return deferred.reject(err);
                 }
@@ -355,11 +360,18 @@ define([
             });
 
         return deferred.promise;
-        
+    };
+
+    RdfPlugin.prototype.renameFuseki = function () {
+        const deferred = q.defer();
+        const WebGmeServerUrl = this.getCurrentConfig().WebGmeServerUrl;
+
+        const move = 'MOVE GRAPH <' + WebGmeServerUrl + '/?project=' + this.projectName + '_tmp> TO <' + WebGmeServerUrl + '/?project=' + this.projectName + '>';
+
         // apache fuseki version
-        superagent.post(this.getCurrentConfig().RdfServerUrl  + '/update')
+        superagent.post(this.getCurrentConfig().FusekiServerUrl  + '/update')
             .set('Content-Type', 'application/sparql-update')
-            .send('MOVE GRAPH <' + WebGmeServerUrl + '/?project=' + this.projectName + '_tmp> TO <' + WebGmeServerUrl + '/?project=' + this.projectName + '>')
+            .send(move)
             .on('error', deferred.reject)
             .end(function(err, res) {
                 if (err) {

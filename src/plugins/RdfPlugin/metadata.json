@@ -11,21 +11,29 @@
   "disableBrowserSideExecution": false,
   "writeAccessRequired": false,
   "configStructure": [
-      {
-        "name": "RdfServerUrl",
-        "displayName": "Rdf Server Url",
-        "description": "Url to upload results, e.g. http://localhost:9999/FactoryStatic",
-        "value": "",
-        "valueType": "string",
-        "readOnly": false
-      },
-      {
-        "name": "WebGmeServerUrl",
-        "displayName": "WebGme Server Url",
-        "description": "",
-        "value": "http://localhost:8888",
-        "valueType": "string",
-        "readOnly": false
-      }
-    ]
+    {
+      "name": "FusekiServerUrl",
+      "displayName": "Fuseki Server Url",
+      "description": "Url to upload results, e.g. http://localhost:9999/FactoryStatic",
+      "value": "",
+      "valueType": "string",
+      "readOnly": false
+    },
+    {
+      "name": "VirtuosoServerUrl",
+      "displayName": "Virtuoso Server Url",
+      "description": "Url to upload results, e.g. http://localhost::8890",
+      "value": "",
+      "valueType": "string",
+      "readOnly": false
+    },
+    {
+      "name": "WebGmeServerUrl",
+      "displayName": "WebGme Server Url",
+      "description": "",
+      "value": "http://localhost:8888",
+      "valueType": "string",
+      "readOnly": false
+    }
+  ]
 }
