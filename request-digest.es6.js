@@ -29,11 +29,15 @@ class HTTPDigest {
                 if (error && error.status === 401) {
                     self._handleResponse(options, error.response, callback)
                 }
+                else if (error)
+                {
+                    callback(error)
+                }
                 else
                 {
                     callback('no auth needed')
                 }
-                })
+            })
     }
 
     _handleResponse(options, res, callback) {
