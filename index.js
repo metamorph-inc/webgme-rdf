@@ -8,6 +8,8 @@ const express = require('express')
 const app = express()
 
 const winston = require('winston')
+winston.remove(winston.transports.Console)
+winston.add(winston.transports.Console, {timestamp: true});
 
 const config = require('./config')
 const FusekiServerUrl = config.webgme_rdf.FusekiServerUrl
