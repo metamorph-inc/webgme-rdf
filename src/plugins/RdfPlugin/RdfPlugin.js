@@ -32,6 +32,7 @@ define([
 
     const superagent = require('superagent');
     const request_digest = require.nodeRequire('../../../request-digest.es6')
+    const url = require.nodeRequire('url');
 
     function getSubTypesOfNode(core, metaNodes, path) {
         var subTypePaths = [],
@@ -307,15 +308,15 @@ define([
 
 
         // curl --digest --user dba:dba --verbose --url "http://example.com?graph-uri=urn:graph:update:test:put" -T books.ttl
-        var url = this.getCurrentConfig().VirtuosoServerUrl + '/sparql-graph-crud-auth?graph-uri=' +
+        var requestUrl = this.getCurrentConfig().VirtuosoServerUrl + '/sparql-graph-crud-auth?graph-uri=' +
             encodeURIComponent(WebGmeServerUrl + '/?project=' + this.projectName + '_tmp');
 
         var digest = new request_digest('dba', 'dba');
-        digest.request(url, {method: 'PUT', path: require('url').parse(url).path}, function (err, headers) {
+        digest.request(requestUrl, {method: 'PUT', path: url.parse(requestUrl).path}, function (err, headers) {
             if (err) {
                 return deferred.resolve(err);
             }
-            superagent.put(url)
+            superagent.put(requestUrl)
                 .set('Authorization', headers.Authorization)
                 .send(ttl)
                 .on('error', deferred.reject)
@@ -355,7 +356,9 @@ define([
         const deferred = q.defer();
         const WebGmeServerUrl = this.getCurrentConfig().WebGmeServerUrl;
 
-        const move = 'MOVE GRAPH <' + this.getCurrentConfig().GraphDBUrl + '/rdf-graphs/_tmp> TO <' + WebGmeServerUrl + '/?project=' + this.projectName + '>';
+        const graphDBUrlWithoutAuth = url.format(new url.URL(this.getCurrentConfig().GraphDBUrl), { auth: false});
+
+        const move = 'MOVE GRAPH <' + graphDBUrlWithoutAuth + '/rdf-graphs/_tmp> TO <' + WebGmeServerUrl + '/?project=' + this.projectName + '>';
 
         superagent.post(this.getCurrentConfig().GraphDBUrl + '/statements')
             .type('form')
