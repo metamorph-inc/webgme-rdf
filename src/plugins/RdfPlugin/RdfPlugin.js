@@ -257,7 +257,7 @@ define([
                 self.result.addMessage(new PluginMessage({
                     commitHash: self.commitHash,
                     activeNode: '', //always point to the root
-                    message: projectText
+                    message: projectText.substr(0, 300) + '...'
                 }));
 
                 // console.log(projectText);
@@ -271,6 +271,10 @@ define([
                     uploads.push(self.uploadVirtuoso(projectText)
                         .then(self.renameVirtuoso.bind(self)));
                 }
+                if (self.getCurrentConfig().GraphDBUrl) {
+                  uploads.push(self.uploadGraphDB(projectText)
+                      .then(self.renameGraphDB.bind(self)));
+                }
                 return q.all(uploads);
             }).then(function () {
 
@@ -283,6 +287,18 @@ define([
                 callback(null, self.result);
             });
 
+    };
+
+    const superagentEnd = function (deferred) {
+      return function (err, res) {
+          if (err) {
+              return deferred.reject(err);
+          }
+          if (res.error) {
+              return deferred.reject(res.status);
+          }
+          return deferred.resolve(res);
+      };
     };
 
     RdfPlugin.prototype.uploadVirtuoso = function (ttl) {
@@ -303,17 +319,8 @@ define([
                 .set('Authorization', headers.Authorization)
                 .send(ttl)
                 .on('error', deferred.reject)
-                .end(function (err, res) {
-                    if (err) {
-                        return deferred.reject(err);
-                    }
-                    if (res.error) {
-                        return deferred.reject(res.status);
-                    }
-                    return deferred.resolve(res);
-                });
+                .end(superagentEnd(deferred));
         });
-
         return deferred.promise;
     };
 
@@ -326,17 +333,38 @@ define([
             // value must be a URI
             .field('graph', WebGmeServerUrl + '/?project=' + this.projectName + '_tmp')
             .on('error', deferred.reject)
-            .end(function(err, res) {
-                if (err) {
-                    return deferred.reject(err);
-                }
-                if (res.error) {
-                    return deferred.reject(res.status);
-                }
-                return deferred.resolve(res);
-            });
+            .end(superagentEnd(deferred));
 
+        return deferred.promise;
+    };
 
+    RdfPlugin.prototype.uploadGraphDB = function (ttl) {
+        const WebGmeServerUrl = this.getCurrentConfig().WebGmeServerUrl;
+        const deferred = q.defer();
+
+        superagent.put(this.getCurrentConfig().GraphDBUrl + '/rdf-graphs/_tmp')
+            .set('Content-Type', 'text/turtle')
+            .send(ttl)
+            .on('error', deferred.reject)
+            .end(superagentEnd(deferred));
+
+        return deferred.promise;
+    };
+
+    RdfPlugin.prototype.renameGraphDB = function () {
+        const deferred = q.defer();
+        const WebGmeServerUrl = this.getCurrentConfig().WebGmeServerUrl;
+
+        const move = 'MOVE GRAPH <' + this.getCurrentConfig().GraphDBUrl + '/rdf-graphs/_tmp> TO <' + WebGmeServerUrl + '/?project=' + this.projectName + '>';
+
+        superagent.post(this.getCurrentConfig().GraphDBUrl + '/statements')
+            .type('form')
+            .send({update: move,
+              infer: true,
+              sameAs: true,
+              })
+            .on('error', deferred.reject)
+            .end(superagentEnd(deferred));
         return deferred.promise;
     };
 
@@ -349,16 +377,7 @@ define([
         // http://demo.openlinksw.com/sparql?default-graph-uri=&query=SELECT+*+%0D%0AWHERE+%0D%0A++{%0D%0A++++%3Fs+%3Fp+%3Fo%0D%0A++}%09%0D%0ALIMIT+10++&should-sponge=&format=text%2Fhtml&CXML_redir_for_subjs=121&CXML_redir_for_hrefs=&timeout=0&debug=on
         superagent.post(this.getCurrentConfig().VirtuosoServerUrl + '/sparql?default-graph-uri=&query=' + encodeURIComponent(move))
             .on('error', deferred.reject)
-            .end(function (err, res) {
-                if (err) {
-                    return deferred.reject(err);
-                }
-                if (res.error) {
-                    return deferred.reject(res.status);
-                }
-                return deferred.resolve(res);
-            });
-
+            .end(superagentEnd(deferred));
         return deferred.promise;
     };
 
@@ -373,15 +392,7 @@ define([
             .set('Content-Type', 'application/sparql-update')
             .send(move)
             .on('error', deferred.reject)
-            .end(function(err, res) {
-                if (err) {
-                    return deferred.reject(err);
-                }
-                if (res.error) {
-                    return deferred.reject(res.status);
-                }
-                return deferred.resolve(res);
-            });
+            .end(superagentEnd(deferred));
         return deferred.promise;
     };
 

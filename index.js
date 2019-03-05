@@ -58,7 +58,7 @@ function update(hash, projectName) {
     }
     updatesRunning[projectName] = hash
 
-    winston.info(`Calling node node_modules/webgme/src/bin/run_plugin.js  -c ${hash} ${pluginName} ${projectName}`)
+    winston.info(`Calling node node_modules/webgme/src/bin/run_plugin.js --pluginConfigPath ${pluginConfig} -c ${hash} ${pluginName} ${projectName}`)
 
     child_process.execFile(process.argv[0], ['node_modules/webgme/src/bin/run_plugin.js', '--pluginConfigPath', pluginConfig, '-c', hash, pluginName, projectName], {},
         function (error, stdout, stderr) {
